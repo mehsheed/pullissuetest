@@ -1,34 +1,12 @@
-import React from 'react';
-import { Post, Author,GitHubEvent } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, 
-    Grid, Button, IconButton, CardActionArea, ButtonBase } from "@mui/material";
+import React, { useEffect, useState } from 'react';
+import { GitHubEvent } from "../../interfaces/interfaces";
+import { Card, CardContent, Typography, Grid } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
-import { getAuthorId } from "../../utils/localStorageUtils";
-import { renderVisibility }from '../../utils/postUtils';
-import { MuiMarkdown } from 'mui-markdown';
-import PostCategories from "./PostCategories";
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import MakeCommentModal from "./MakeCommentModal";
-import ShareIcon from '@mui/icons-material/Share';
-import Tooltip from '@mui/material/Tooltip';
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import SharePostModal from './SharePostModal';
-import { getUserCredentials } from '../../utils/localStorageUtils';
-
-
-import MoreMenu from './edit/MoreMenu';
-import styled from '@emotion/styled';
-import PostLikes from "./like/PostLikes";
-
-const APP_URI = process.env.REACT_APP_URI;
 
 const extractUsernameFromUrl = (url: string): string => {
-  // Split the URL by '/' and get the last segment
-  const segments = url.split('/');
-  return segments[segments.length - 1];
+  const segments = url.split('/').filter(Boolean);
+  return segments[segments.length - 1] || '';
 };
 
 const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
@@ -38,6 +16,11 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
   
     useEffect(() => {
       const fetchGitHubEvents = async (): Promise<void> => {
+        if (!username) {
+          setGitHubEvents([]);
+          return;
+        }
+
         try {
 
           const response = await axios.get(`${giteveurl}/events`);
@@ -50,7 +33,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
               id: event.id,
               type: event.type,
               created_at: event.created_at,
-              repoUrl: event.repo.name,
+              repoUrl: `https://github.com/${event.repo.name}`,
             }));
   
           setGitHubEvents(filteredEvents);
@@ -97,8 +80,6 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
     };
     
     export default GitHubEventsList;
-
-
 
 
 
